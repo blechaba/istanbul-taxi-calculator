@@ -48,20 +48,23 @@ const C = {
   bg:       "#0e0e12",
   surface:  "#16161e",
   surface2: "#1e1e28",
-  border:   "rgba(255,255,255,0.06)",
-  border2:  "rgba(255,255,255,0.1)",
-  accent:   "#ff6b35",
+  border:   "rgba(255,255,255,0.09)",
+  border2:  "rgba(255,255,255,0.15)",
+  accent:   "#ff6b35",        // primary orange
   accentDim:"rgba(255,107,53,0.15)",
-  text:     "#f0f0f5",
-  muted:    "#6b6b80",
-  muted2:   "#3a3a4a",
-  green:    "#22c55e",
+  yellow:   "#fbbf24",        // warm yellow for secondary labels/info
+  yellowDim:"rgba(251,191,36,0.12)",
+  text:     "#ffffff",        // pure white for all primary text
+  textSoft: "#e8e8f0",        // near-white for body text
+  muted:    "#c4c4d4",        // light grey — still readable on dark
+  muted2:   "#8888a0",        // for truly secondary info, but still legible
+  green:    "#4ade80",
   red:      "#ef4444",
 };
 
 // ── Reusable components ────────────────────────────────────────────
 const Label = ({ children, style={} }) => (
-  <div style={{ fontSize:"10px", letterSpacing:"1.5px", textTransform:"uppercase", color:C.muted, marginBottom:"6px", fontWeight:600, ...style }}>
+  <div style={{ fontSize:"10px", letterSpacing:"1.5px", textTransform:"uppercase", color:C.yellow, marginBottom:"6px", fontWeight:600, ...style }}>
     {children}
   </div>
 );
@@ -109,7 +112,7 @@ const PlatformBtn = ({ platform, active, onClick }) => (
     flex:1, padding:"10px 6px",
     border:`1px solid ${active ? P_COLOR[platform] : C.border}`,
     background: active ? P_BG[platform] : "transparent",
-    color: active ? P_COLOR[platform] : C.muted,
+    color: active ? P_COLOR[platform] : C.textSoft,
     borderRadius:"12px", cursor:"pointer",
     fontFamily:"'Syne',sans-serif",
     fontSize:"12px", fontWeight: active ? 700 : 500,
@@ -140,40 +143,44 @@ const TripCard = ({ trip, rate, currency, onRemove }) => {
   return (
     <div style={{
       background:C.surface, border:`1px solid ${C.border}`,
-      borderRadius:"16px", padding:"16px",
+      borderRadius:"18px", padding:"20px",
       transition:"border-color 0.2s",
     }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
         <div style={{ flex:1 }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"8px", flexWrap:"wrap" }}>
+          {/* Platform pill — its own row */}
+          <div style={{ marginBottom:"10px" }}>
             <Pill platform={trip.platform} />
-            <span style={{ fontSize:"13px", fontWeight:700, color:C.text }}>
-              {trip.from||"—"} → {trip.to||"—"}
-            </span>
           </div>
-          <div style={{ display:"flex", gap:"12px", flexWrap:"wrap", marginBottom:"6px" }}>
-            <span style={{ fontSize:"11px", color:C.muted }}>📅 {formatDate(trip.date)}</span>
-            {trip.distanceKm && <span style={{ fontSize:"11px", color:C.muted }}>{trip.distanceKm} km</span>}
-            {trip.durationMin && <span style={{ fontSize:"11px", color:C.muted }}>{trip.durationMin} min</span>}
+          {/* Route — full width, prominent */}
+          <div style={{ fontSize:"16px", fontWeight:700, color:C.text, marginBottom:"10px", lineHeight:1.3 }}>
+            {trip.from||"—"} → {trip.to||"—"}
           </div>
-          <div style={{ display:"flex", alignItems:"baseline", gap:"10px", flexWrap:"wrap" }}>
-            <span style={{ fontSize:"18px", fontWeight:800, color:C.accent, letterSpacing:"-0.5px" }}>{fmtTL(trip.resolvedTotal)}</span>
-            <span style={{ fontSize:"13px", color:C.green, fontWeight:600 }}>
+          {/* Meta chips */}
+          <div style={{ display:"flex", gap:"14px", flexWrap:"wrap", marginBottom:"14px" }}>
+            <span style={{ fontSize:"12px", color:C.yellow }}>📅 {formatDate(trip.date)}</span>
+            {trip.distanceKm && <span style={{ fontSize:"12px", color:C.textSoft }}>{trip.distanceKm} km</span>}
+            {trip.durationMin && <span style={{ fontSize:"12px", color:C.textSoft }}>{trip.durationMin} min</span>}
+          </div>
+          {/* Fare — large and clear */}
+          <div style={{ display:"flex", alignItems:"baseline", gap:"12px", flexWrap:"wrap" }}>
+            <span style={{ fontSize:"22px", fontWeight:800, color:C.accent, letterSpacing:"-0.5px" }}>{fmtTL(trip.resolvedTotal)}</span>
+            <span style={{ fontSize:"15px", color:C.green, fontWeight:700 }}>
               {fmtC(num(trip.resolvedTotal)*snap, currency.symbol)} {currency.code}
             </span>
-            {rateChanged && <span style={{ fontSize:"10px", color:C.muted2 }}>@{snap.toFixed(4)}</span>}
+            {rateChanged && <span style={{ fontSize:"11px", color:C.muted }}>@{snap.toFixed(4)}</span>}
           </div>
           {(num(trip.tip)>0 || trip.notes) && (
-            <div style={{ display:"flex", gap:"10px", marginTop:"6px", flexWrap:"wrap" }}>
-              {num(trip.tip)>0 && <span style={{ fontSize:"11px", color:C.muted2 }}>tip {fmtTL(trip.tip)}</span>}
-              {trip.notes && <span style={{ fontSize:"11px", color:C.muted2 }}>{trip.notes}</span>}
+            <div style={{ display:"flex", gap:"12px", marginTop:"10px", flexWrap:"wrap" }}>
+              {num(trip.tip)>0 && <span style={{ fontSize:"12px", color:C.muted }}>Tip {fmtTL(trip.tip)}</span>}
+              {trip.notes && <span style={{ fontSize:"12px", color:C.muted, fontStyle:"italic" }}>{trip.notes}</span>}
             </div>
           )}
         </div>
         <button onClick={onRemove} style={{
-          background:"none", border:"none", color:C.muted2,
-          cursor:"pointer", fontSize:"20px", padding:"0 0 0 12px",
-          lineHeight:1, flexShrink:0,
+          background:"none", border:"none", color:C.muted,
+          cursor:"pointer", fontSize:"22px", padding:"0 0 0 16px",
+          lineHeight:1, flexShrink:0, opacity:0.5,
         }}>×</button>
       </div>
     </div>
@@ -320,7 +327,7 @@ export default function App() {
         }}>
           {[["Flag fall",fmtTL(OFFICIAL_FLAG_FALL)],["Per km",fmtTL(OFFICIAL_RATE_PER_KM)],["Wait/min",fmtTL(OFFICIAL_WAIT_PER_MIN.toFixed(2))],["Night rate","None"]].map(([l,v]) => (
             <div key={l} style={{ textAlign:"center" }}>
-              <div style={{ fontSize:"9px", color:C.muted2, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"3px" }}>{l}</div>
+              <div style={{ fontSize:"9px", color:C.muted, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"3px" }}>{l}</div>
               <div style={{ fontSize:"13px", fontWeight:700, color:C.text }}>{v}</div>
             </div>
           ))}
@@ -330,11 +337,11 @@ export default function App() {
         {stats && (
           <div style={{ marginTop:"14px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
             <div>
-              <div style={{ fontSize:"11px", color:C.muted, marginBottom:"2px" }}>Avg fare · {stats.totalTrips} trips</div>
+              <div style={{ fontSize:"11px", color:C.yellow, marginBottom:"2px" }}>Avg fare · {stats.totalTrips} trips</div>
               <div style={{ fontSize:"24px", fontWeight:800, color:C.accent, letterSpacing:"-1px" }}>{fmtTL(stats.avgFare)}</div>
             </div>
             <div style={{ textAlign:"right" }}>
-              <div style={{ fontSize:"11px", color:C.muted, marginBottom:"2px" }}>{currency.code} equivalent</div>
+              <div style={{ fontSize:"11px", color:C.yellow, marginBottom:"2px" }}>{currency.code} equivalent</div>
               <div style={{ fontSize:"20px", fontWeight:700, color:C.green }}>{fmtC(stats.avgFare*rate, currency.symbol)}</div>
             </div>
           </div>
@@ -349,7 +356,7 @@ export default function App() {
               flexShrink:0, padding:"7px 14px", borderRadius:"20px",
               border:`1px solid ${activeCurrency===c.code ? C.accent : C.border}`,
               background: activeCurrency===c.code ? C.accentDim : "transparent",
-              color: activeCurrency===c.code ? C.accent : C.muted,
+              color: activeCurrency===c.code ? C.accent : C.textSoft,
               fontSize:"12px", fontWeight: activeCurrency===c.code ? 700 : 500,
               cursor:"pointer", fontFamily:"inherit",
               transition:"all 0.2s",
@@ -357,7 +364,7 @@ export default function App() {
           ))}
         </div>
         <div style={{ marginTop:"10px", display:"flex", alignItems:"center", gap:"8px" }}>
-          <span style={{ fontSize:"12px", color:C.muted, flexShrink:0 }}>1 TRY =</span>
+          <span style={{ fontSize:"12px", color:C.textSoft, flexShrink:0 }}>1 TRY =</span>
           <input type="number" step="0.0001" value={rates[activeCurrency]}
             onChange={e => setRates({ ...rates, [activeCurrency]: parseFloat(e.target.value)||0 })}
             style={{
@@ -366,9 +373,9 @@ export default function App() {
               fontFamily:"inherit", outline:"none", fontWeight:700,
             }} />
           <span style={{ fontSize:"12px", color:C.accent, fontWeight:700 }}>{currency.code}</span>
-          <span style={{ fontSize:"11px", color:C.muted2, flex:1 }}>{currency.name}</span>
+          <span style={{ fontSize:"11px", color:C.muted, flex:1 }}>{currency.name}</span>
           <button onClick={() => setRates({ ...rates, [activeCurrency]: currency.defaultRate })} style={{
-            background:"none", border:`1px solid ${C.border2}`, color:C.muted,
+            background:"none", border:`1px solid ${C.border2}`, color:C.textSoft,
             borderRadius:"8px", padding:"5px 10px", fontSize:"10px", cursor:"pointer",
             fontFamily:"inherit", letterSpacing:"1px",
           }}>RESET</button>
@@ -397,20 +404,22 @@ export default function App() {
               <div><Label>To</Label><Input placeholder="e.g. Sultanahmet" value={form.to} onChange={e => setForm({...form,to:e.target.value})} /></div>
             </div>
 
-            {/* Date + Distance + Duration */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"10px", marginBottom:"14px" }}>
+            {/* Distance + Duration */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"10px", marginBottom:"10px" }}>
               <div>
-                <Label>Date</Label>
-                <Input type="date" value={form.date} onChange={e => setForm({...form,date:e.target.value})} style={{ colorScheme:"dark" }} />
-              </div>
-              <div>
-                <Label>km {form.platform==="BiTaksi"?"(opt)":""}</Label>
+                <Label>Distance km {form.platform==="BiTaksi" ? "(optional)" : ""}</Label>
                 <Input type="number" min="0" placeholder="6.42" value={form.distanceKm} onChange={e => setForm({...form,distanceKm:e.target.value})} />
               </div>
               <div>
-                <Label>Minutes</Label>
+                <Label>Duration (minutes)</Label>
                 <Input type="number" min="0" placeholder="18" value={form.durationMin} onChange={e => setForm({...form,durationMin:e.target.value})} />
               </div>
+            </div>
+
+            {/* Date — full width */}
+            <div style={{ marginBottom:"14px" }}>
+              <Label>Trip date</Label>
+              <Input type="date" value={form.date} onChange={e => setForm({...form,date:e.target.value})} style={{ colorScheme:"dark" }} />
             </div>
 
             {/* Fare mode toggle */}
@@ -422,7 +431,7 @@ export default function App() {
                     flex:1, padding:"10px",
                     border:`1px solid ${form.inputMode===m ? C.accent : C.border}`,
                     background: form.inputMode===m ? C.accentDim : "transparent",
-                    color: form.inputMode===m ? C.accent : C.muted,
+                    color: form.inputMode===m ? C.accent : C.textSoft,
                     borderRadius:"12px", cursor:"pointer", fontFamily:"inherit",
                     fontSize:"12px", fontWeight: form.inputMode===m ? 700 : 500,
                     transition:"all 0.2s",
@@ -452,7 +461,7 @@ export default function App() {
                 border:`1px solid rgba(255,107,53,0.25)`, borderRadius:"16px",
                 display:"flex", justifyContent:"space-between", alignItems:"center",
               }}>
-                <span style={{ fontSize:"12px", color:C.muted, fontWeight:600, letterSpacing:"1px", textTransform:"uppercase" }}>Trip total</span>
+                <span style={{ fontSize:"12px", color:C.yellow, fontWeight:600, letterSpacing:"1px", textTransform:"uppercase" }}>Trip total</span>
                 <div style={{ textAlign:"right" }}>
                   <div style={{ fontSize:"22px", fontWeight:800, color:C.accent, letterSpacing:"-0.5px" }}>{fmtTL(resolveTotal(form))}</div>
                   <div style={{ fontSize:"13px", color:C.green, fontWeight:600 }}>{fmtC(resolveTotal(form)*rate, currency.symbol)} {currency.code}</div>
@@ -520,7 +529,7 @@ export default function App() {
 
             {stats && (
               <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"12px 14px", marginBottom:"14px", display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                <span style={{ fontSize:"12px", color:C.muted }}>Your calibrated rate</span>
+                <span style={{ fontSize:"12px", color:C.textSoft }}>Your calibrated rate</span>
                 <span style={{ fontSize:"14px", fontWeight:700, color:C.accent }}>{fmtTL(stats.effRate)}/km · {stats.totalTrips} trips</span>
               </div>
             )}
@@ -550,7 +559,7 @@ export default function App() {
               }}>
                 <div style={{ display:"flex", alignItems:"center", gap:"8px", marginBottom:"16px" }}>
                   <Pill platform={estimate.platform} />
-                  {num(estimate.distanceKm)===0 && <span style={{ fontSize:"11px", color:C.muted }}>time-based estimate</span>}
+                  {num(estimate.distanceKm)===0 && <span style={{ fontSize:"11px", color:C.yellow }}>time-based estimate</span>}
                 </div>
 
                 {/* Breakdown rows */}
@@ -571,14 +580,14 @@ export default function App() {
 
                 <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:"14px", marginTop:"6px" }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:"6px" }}>
-                    <span style={{ fontSize:"12px", color:C.muted, textTransform:"uppercase", letterSpacing:"1px" }}>Total TRY</span>
+                    <span style={{ fontSize:"12px", color:C.yellow, textTransform:"uppercase", letterSpacing:"1px" }}>Total TRY</span>
                     <span style={{ fontSize:"26px", fontWeight:800, color:C.accent, letterSpacing:"-1px" }}>{fmtTL(est.total)}</span>
                   </div>
                   {/* All currencies */}
                   <div style={{ background:"rgba(0,0,0,0.2)", borderRadius:"12px", padding:"12px", marginTop:"8px" }}>
                     {CURRENCIES.map(c => (
                       <div key={c.code} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:`1px solid ${C.border}` }}>
-                        <span style={{ fontSize:"12px", color: activeCurrency===c.code ? C.text : C.muted, fontWeight: activeCurrency===c.code ? 700 : 400 }}>
+                        <span style={{ fontSize:"12px", color: activeCurrency===c.code ? C.text : C.textSoft, fontWeight: activeCurrency===c.code ? 700 : 400 }}>
                           {c.symbol} {c.code}
                         </span>
                         <span style={{ fontSize:"13px", fontWeight: activeCurrency===c.code ? 800 : 500, color: activeCurrency===c.code ? C.green : C.muted2 }}>
@@ -594,7 +603,7 @@ export default function App() {
             {(num(estimate.distanceKm)===0 && num(estimate.durationMin)===0) && (
               <div style={{ textAlign:"center", padding:"50px 20px", color:C.muted2 }}>
                 <div style={{ fontSize:"32px", marginBottom:"10px" }}>◎</div>
-                <div style={{ fontSize:"14px" }}>Enter distance or duration<br/>to estimate a fare</div>
+                <div style={{ fontSize:"14px", color:C.textSoft }}>Enter distance or duration<br/>to estimate a fare</div>
               </div>
             )}
           </div>
@@ -607,7 +616,7 @@ export default function App() {
             {!stats || stats.ranked.length < 2 ? (
               <div style={{ textAlign:"center", padding:"60px 20px", color:C.muted2 }}>
                 <div style={{ fontSize:"32px", marginBottom:"10px" }}>⇄</div>
-                <div style={{ fontSize:"14px" }}>Log trips on 2+ platforms<br/>to unlock comparison</div>
+                <div style={{ fontSize:"14px", color:C.textSoft }}>Log trips on 2+ platforms<br/>to unlock comparison</div>
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:"12px" }}>
@@ -629,7 +638,7 @@ export default function App() {
                     )}
                     <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"14px" }}>
                       <Pill platform={platform} />
-                      <span style={{ fontSize:"12px", color:C.muted }}>{d.count} trip{d.count!==1?"s":""}</span>
+                      <span style={{ fontSize:"12px", color:C.textSoft }}>{d.count} trip{d.count!==1?"s":""}</span>
                     </div>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
                       {[
@@ -639,7 +648,7 @@ export default function App() {
                         d.avgMin>0 && ["Avg duration", `${d.avgMin.toFixed(0)} min`],
                       ].filter(Boolean).map(([l,v]) => (
                         <div key={l}>
-                          <div style={{ fontSize:"10px", color:C.muted2, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"2px" }}>{l}</div>
+                          <div style={{ fontSize:"10px", color:C.yellow, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"2px" }}>{l}</div>
                           <div style={{ fontSize:"17px", fontWeight:800, color:i===0 ? P_COLOR[platform] : C.text, letterSpacing:"-0.5px" }}>{v}</div>
                         </div>
                       ))}
@@ -652,7 +661,7 @@ export default function App() {
                   const delta = pricey - cheap;
                   return (
                     <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"16px 18px" }}>
-                      <div style={{ fontSize:"12px", color:C.muted, marginBottom:"6px" }}>Avg saving per trip</div>
+                      <div style={{ fontSize:"12px", color:C.yellow, marginBottom:"6px" }}>Avg saving per trip</div>
                       <div style={{ display:"flex", gap:"12px", alignItems:"baseline" }}>
                         <span style={{ fontSize:"22px", fontWeight:800, color:C.accent, letterSpacing:"-0.5px" }}>{fmtTL(delta)}</span>
                         <span style={{ fontSize:"16px", fontWeight:700, color:C.green }}>{fmtC(delta*rate, currency.symbol)} {currency.code}</span>
@@ -674,30 +683,35 @@ export default function App() {
             <div style={{ fontSize:"18px", fontWeight:800, color:C.text, marginBottom:"20px", letterSpacing:"-0.5px" }}>Trip History</div>
 
             {/* Filters */}
-            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"16px", marginBottom:"16px" }}>
-              <Label>Filter</Label>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"8px" }}>
+            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"18px", marginBottom:"20px" }}>
+              <Label style={{ marginBottom:"14px" }}>Filter trips</Label>
+
+              {/* Platform — full width */}
+              <div style={{ marginBottom:"14px" }}>
+                <Label>Platform</Label>
+                <Select value={histFilter.platform} onChange={e => setHistFilter({...histFilter,platform:e.target.value})}>
+                  <option value="All">All platforms</option>
+                  {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
+                </Select>
+              </div>
+
+              {/* Date range — 2 col */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px" }}>
                 <div>
-                  <Label>Platform</Label>
-                  <Select value={histFilter.platform} onChange={e => setHistFilter({...histFilter,platform:e.target.value})}>
-                    <option value="All">All</option>
-                    {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
-                  </Select>
-                </div>
-                <div>
-                  <Label>From</Label>
+                  <Label>From date</Label>
                   <Input type="date" value={histFilter.dateFrom} onChange={e => setHistFilter({...histFilter,dateFrom:e.target.value})} style={{ colorScheme:"dark" }} />
                 </div>
                 <div>
-                  <Label>To</Label>
+                  <Label>To date</Label>
                   <Input type="date" value={histFilter.dateTo} onChange={e => setHistFilter({...histFilter,dateTo:e.target.value})} style={{ colorScheme:"dark" }} />
                 </div>
               </div>
+
               {(histFilter.platform!=="All"||histFilter.dateFrom||histFilter.dateTo) && (
                 <button onClick={() => setHistFilter({platform:"All",dateFrom:"",dateTo:""})} style={{
-                  marginTop:"10px", background:"none", border:`1px solid ${C.border}`,
-                  color:C.muted, borderRadius:"8px", padding:"5px 12px", fontSize:"11px",
-                  cursor:"pointer", fontFamily:"inherit",
+                  marginTop:"14px", background:"none", border:`1px solid ${C.border}`,
+                  color:C.yellow, borderRadius:"10px", padding:"8px 16px", fontSize:"12px",
+                  cursor:"pointer", fontFamily:"inherit", fontWeight:600,
                 }}>Clear filters ×</button>
               )}
             </div>
@@ -716,24 +730,24 @@ export default function App() {
             {filteredTrips.length === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 20px", color:C.muted2 }}>
                 <div style={{ fontSize:"32px", marginBottom:"10px" }}>≡</div>
-                <div style={{ fontSize:"14px" }}>{trips.length===0 ? "No trips logged yet" : "No trips match this filter"}</div>
+                <div style={{ fontSize:"14px", color:C.textSoft }}>{trips.length===0 ? "No trips logged yet" : "No trips match this filter"}</div>
               </div>
             ) : (
               <div>
                 {/* Summary bar */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"8px", marginBottom:"14px" }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"10px", marginBottom:"20px" }}>
                   {[
                     ["Trips", filteredTrips.length],
                     ["Total TRY", fmtTL(filteredTrips.reduce((s,t)=>s+num(t.resolvedTotal),0))],
                     [currency.code, fmtC(filteredTrips.reduce((s,t)=>s+num(t.resolvedTotal),0)*rate, currency.symbol)],
                   ].map(([l,v]) => (
-                    <div key={l} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"12px", padding:"12px", textAlign:"center" }}>
-                      <div style={{ fontSize:"9px", color:C.muted2, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"4px" }}>{l}</div>
-                      <div style={{ fontSize:"15px", fontWeight:800, color:C.text }}>{v}</div>
+                    <div key={l} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"14px", padding:"16px 10px", textAlign:"center" }}>
+                      <div style={{ fontSize:"10px", color:C.yellow, letterSpacing:"1px", textTransform:"uppercase", marginBottom:"6px" }}>{l}</div>
+                      <div style={{ fontSize:"16px", fontWeight:800, color:C.text }}>{v}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
+                <div style={{ display:"flex", flexDirection:"column", gap:"14px" }}>
                   {filteredTrips.map(t => (
                     <TripCard key={t.id} trip={t} rate={rate} currency={currency} onRemove={() => removeTrip(t.id)} />
                   ))}
@@ -759,7 +773,7 @@ export default function App() {
                     display:"flex", alignItems:"center", gap:"12px",
                   }}>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:"13px", fontWeight:700, color: activeCurrency===c.code ? C.accent : C.text }}>{c.symbol} {c.code}</div>
+                      <div style={{ fontSize:"13px", fontWeight:700, color: activeCurrency===c.code ? C.accent : C.textSoft }}>{c.symbol} {c.code}</div>
                       <div style={{ fontSize:"11px", color:C.muted }}>{c.name}</div>
                     </div>
                     <input type="number" step="0.0001" value={rates[c.code]}
@@ -794,7 +808,7 @@ export default function App() {
             {trips.length > 0 && (
               <div style={{ background:"rgba(239,68,68,0.05)", border:"1px solid rgba(239,68,68,0.15)", borderRadius:"16px", padding:"16px" }}>
                 <Label style={{ color:"#ef4444", marginBottom:"10px" }}>Data</Label>
-                <div style={{ fontSize:"13px", color:C.muted, marginBottom:"12px" }}>{trips.length} trips stored locally on this device</div>
+                <div style={{ fontSize:"13px", color:C.textSoft, marginBottom:"12px" }}>{trips.length} trips stored locally on this device</div>
                 <button onClick={() => { if(window.confirm("Delete all trips? This cannot be undone.")) { setTrips([]); showToast("All trips cleared"); }}} style={{
                   background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.25)",
                   color:"#ef4444", borderRadius:"10px", padding:"10px 16px",
@@ -820,7 +834,7 @@ export default function App() {
             flex:1, background:"none", border:"none",
             display:"flex", flexDirection:"column", alignItems:"center", gap:"3px",
             cursor:"pointer", padding:"6px 4px",
-            color: tab===key ? C.accent : C.muted2,
+            color: tab===key ? C.accent : C.textSoft,
             fontFamily:"inherit", transition:"color 0.2s",
           }}>
             <span style={{ fontSize:"18px", lineHeight:1 }}>{icon}</span>
